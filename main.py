@@ -33,7 +33,7 @@ def summa(message):
         btn3 = types.InlineKeyboardButton('USD/GBP', callback_data='usd/gbp')
         btn4 = types.InlineKeyboardButton('Другое значение', callback_data='else')
         markup.add(btn1, btn2, btn3, btn4)
-        bot.send_message(message.chat.id, 'Выберите пару валют')
+        bot.send_message(message.chat.id, 'Выберите пару валют', reply_markup=markup)
     else:
         bot.send_message(message.chat.id, 'Число должно быть больше 0')
         bot.register_next_step_handler(message, summa)
@@ -46,6 +46,7 @@ def callback(call):
         res = currency.convert(amount, values[0], values[1])
         bot.send_message(call.message.chat.id, f'Получается: {round(res, 2)}. Можете заново вписать сумму')
         bot.register_next_step_handler(call.message, summa)
+
     else:
         bot.send_message(call.message.chat.id, 'Введите пару значений через /')
         bot.register_next_step_handler(call.message, mycurrency)
@@ -66,8 +67,8 @@ def mycurrency(message):
 @bot.message_handler(commands=['weather'])
 def weather(message):
     bot.send_message(message.chat.id, 'Напиши название города')
+    bot.register_next_step_handler(message, get_weather)
 
-@bot.message_handler(content_types=['text'])
 def get_weather(message):
     city = message.text.strip().lower()
     res = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
@@ -140,17 +141,12 @@ def site(message):
 
 
 
-@bot.message_handler(commands=['main', 'hello'])
-def main(message):
-    bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name} {message.from_user.last_name}')
 
 
-@bot.message_handler()
-def info(message):
-    if message.text.lower() == 'привет':
-        bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name} {message.from_user.last_name}')
-    elif message.text.lower() == 'id':
-        bot.reply_to(message, f'ID: {message.from_user.id}')
+
+@bot.message_handler(commands=['id'])
+def id(message):
+    bot.reply_to(message, f'ID: {message.from_user.id}')
 
 
 
